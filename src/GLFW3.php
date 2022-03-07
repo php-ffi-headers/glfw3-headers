@@ -216,9 +216,11 @@ class GLFW3 implements HeaderInterface
      */
     public function __toString(): string
     {
-        return \implode(\PHP_EOL, [
-                $this->pre->process(new \SplFileInfo($this->getHeaderPathname())),
-                $this->pre->process(new \SplFileInfo($this->getNativeHeaderPathname()))
-            ]) . \PHP_EOL;
+        $headers = [
+            $this->pre->process(new \SplFileInfo($this->getHeaderPathname())),
+            $this->pre->process(new \SplFileInfo($this->getNativeHeaderPathname()))
+        ];
+
+        return \implode(\PHP_EOL, $headers) . \PHP_EOL;
     }
 }
