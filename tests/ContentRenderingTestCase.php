@@ -55,7 +55,8 @@ class ContentRenderingTestCase extends TestCase
     }
 
     /**
-     * @testdox Testing that the headers are successfully collected with different parameters.
+     * @testdox Testing that the headers are successfully built
+     *
      * @dataProvider configDataProvider
      */
     public function testRenderable(WindowPlatform $window, ContextPlatform $context, Version $version): void
