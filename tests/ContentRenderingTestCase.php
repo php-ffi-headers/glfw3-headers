@@ -15,30 +15,15 @@ use FFI\Headers\GLFW3;
 use FFI\Headers\GLFW3\ContextPlatform;
 use FFI\Headers\GLFW3\Version;
 use FFI\Headers\GLFW3\WindowPlatform;
-use FFI\Preprocessor\Preprocessor;
 
-class ContentRenderingTestCase extends TestCase
+/**
+ * @group building
+ */
+final class ContentRenderingTestCase extends TestCase
 {
     /**
-     * @var Preprocessor
+     * @return array<array{WindowPlatform, ContextPlatform, Version}>
      */
-    private static Preprocessor $pre;
-
-    /**
-     * @return void
-     */
-    public static function setUpBeforeClass(): void
-    {
-        self::$pre = new Preprocessor();
-
-        parent::setUpBeforeClass();
-    }
-
-    private function key(WindowPlatform $window, ContextPlatform $context, Version $version): string
-    {
-        return \sprintf('%s-%s-%s', $window->name, $context->name, $version->value);
-    }
-
     public function configDataProvider(): array
     {
         $result = [];
@@ -46,7 +31,8 @@ class ContentRenderingTestCase extends TestCase
         foreach (WindowPlatform::cases() as $window) {
             foreach (ContextPlatform::cases() as $context) {
                 foreach (Version::cases() as $version) {
-                    $result[$this->key($window, $context, $version)] = [$window, $context, $version];
+                    $result[\sprintf('%s-%s-%s', $window->name, $context->name, $version->value)]
+                        = [$window, $context, $version];
                 }
             }
         }
@@ -63,6 +49,6 @@ class ContentRenderingTestCase extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        (string)GLFW3::create($window, $context, $version, self::$pre);
+        (string)GLFW3::create($window, $context, $version);
     }
 }

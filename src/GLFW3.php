@@ -46,21 +46,21 @@ class GLFW3 implements HeaderInterface
     CPP;
 
     /**
-     * TODO Add X11 types
-     *
      * @var non-empty-string
      */
     private const XLIB_H = <<<'CPP'
-    // X11/Xlib.h
+    typedef unsigned long XID;
+    typedef XID Window;
+    typedef unsigned long VisualID;
+    typedef struct _XDisplay Display;
     CPP;
 
     /**
-     * TODO Add X11 types
-     *
      * @var non-empty-string
      */
     private const XRANDR_H = <<<'CPP'
-    // X11/extensions/Xrandr.h
+    typedef XID RROutput;
+    typedef XID RRCrtc;
     CPP;
 
     /**
@@ -73,12 +73,10 @@ class GLFW3 implements HeaderInterface
     CPP;
 
     /**
-     * TODO Add GLX types
-     *
      * @var non-empty-string
      */
     private const GLX_H = <<<'CPP'
-    // GL/glx.h
+    typedef void* GLXContext;
     CPP;
 
     /**
