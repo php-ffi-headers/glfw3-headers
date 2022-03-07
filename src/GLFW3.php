@@ -29,6 +29,77 @@ class GLFW3 implements HeaderInterface
     private const HEADERS_DIRECTORY = __DIR__ . '/../resources/headers';
 
     /**
+     * @var non-empty-string
+     */
+    private const WINDOWS_H = <<<'CPP'
+    // windows.h
+    typedef void* HWND;
+    CPP;
+
+    /**
+     * TODO Add NSGL/COCOA types
+     *
+     * @var non-empty-string
+     */
+    private const APPLICATION_SERVICES_H = <<<'CPP'
+    // ApplicationServices.h
+    CPP;
+
+    /**
+     * TODO Add X11 types
+     *
+     * @var non-empty-string
+     */
+    private const XLIB_H = <<<'CPP'
+    // X11/Xlib.h
+    CPP;
+
+    /**
+     * TODO Add X11 types
+     *
+     * @var non-empty-string
+     */
+    private const XRANDR_H = <<<'CPP'
+    // X11/extensions/Xrandr.h
+    CPP;
+
+    /**
+     * TODO Add Wayland types
+     *
+     * @var non-empty-string
+     */
+    private const WAYLAND_CLIENT_H = <<<'CPP'
+    // wayland-client.h
+    CPP;
+
+    /**
+     * TODO Add GLX types
+     *
+     * @var non-empty-string
+     */
+    private const GLX_H = <<<'CPP'
+    // GL/glx.h
+    CPP;
+
+    /**
+     * TODO Add EGL types
+     *
+     * @var non-empty-string
+     */
+    private const EGL_H = <<<'CPP'
+    // EGL/egl.h
+    CPP;
+
+    /**
+     * TODO Add OSMESA types
+     *
+     * @var non-empty-string
+     */
+    private const OSMESA_H = <<<'CPP'
+    // GL/osmesa.h
+    CPP;
+
+    /**
      * @param PreprocessorInterface $pre
      * @param VersionInterface $version
      */
@@ -75,36 +146,64 @@ class GLFW3 implements HeaderInterface
         $pre->add('stddef.h', '');
         $pre->add('GL/gl.h', '');
 
-        // Add Windows typedefs
-        if (\PHP_OS_FAMILY === 'Windows') {
-            $pre->define('_WIN32', '1');
-            $pre->define('WINGDIAPI');
-            $pre->define('CALLBACK');
-            $pre->add('windows.h', <<<'CPP'
-                typedef void* HWND;
-            CPP);
+        // Expose Window API
+        switch ($window) {
+            case WindowPlatform::WIN32:
+                $pre->define('GLFW_EXPOSE_NATIVE_WIN32', '1');
+                $pre->define('_WIN32', '1');
+                $pre->define('WINGDIAPI');
+                $pre->define('CALLBACK');
+                $pre->add('windows.h', self::WINDOWS_H);
+                break;
+
+            case WindowPlatform::COCOA:
+                $pre->define('GLFW_EXPOSE_NATIVE_COCOA', '1');
+                $pre->add('ApplicationServices/ApplicationServices.h', self::APPLICATION_SERVICES_H);
+                break;
+
+            case WindowPlatform::X11:
+                $pre->define('GLFW_EXPOSE_NATIVE_X11', '1');
+                $pre->add('X11/Xlib.h', self::XLIB_H);
+                $pre->add('X11/extensions/Xrandr.h', self::XRANDR_H);
+                break;
+
+            case WindowPlatform::WAYLAND:
+                $pre->define('GLFW_EXPOSE_NATIVE_WAYLAND', '1');
+                $pre->add('wayland-client.h', self::WAYLAND_CLIENT_H);
+                break;
         }
 
-        // Expose Window API
-        $pre->define(match ($window) {
-            WindowPlatform::WIN32   => 'GLFW_EXPOSE_NATIVE_WIN32',
-            WindowPlatform::COCOA   => 'GLFW_EXPOSE_NATIVE_COCOA',
-            WindowPlatform::X11     => 'GLFW_EXPOSE_NATIVE_X11',
-            WindowPlatform::WAYLAND => 'GLFW_EXPOSE_NATIVE_WAYLAND',
-            default => 'GLFW_EXPOSE_NATIVE_UNKNOWN_WINDOW_API'
-        }, '1');
-
         // Expose Context API
-        $pre->define(match ($context) {
-            ContextPlatform::WGL    => 'GLFW_EXPOSE_NATIVE_WGL',
-            ContextPlatform::NSGL   => 'GLFW_EXPOSE_NATIVE_NSGL',
-            ContextPlatform::GLX    => 'GLFW_EXPOSE_NATIVE_GLX',
-            ContextPlatform::EGL    => 'GLFW_EXPOSE_NATIVE_EGL',
-            ContextPlatform::OSMESA => 'GLFW_EXPOSE_NATIVE_OSMESA',
-            default => 'GLFW_EXPOSE_NATIVE_UNKNOWN_CONTEXT_API'
-        }, '1');
+        switch ($context) {
+            case ContextPlatform::WGL:
+                $pre->define('GLFW_EXPOSE_NATIVE_WGL', '1');
+                $pre->add('windows.h', self::WINDOWS_H);
+                break;
 
-        if (! $version instanceof VersionInterface) {
+            case ContextPlatform::NSGL:
+                $pre->define('GLFW_EXPOSE_NATIVE_NSGL', '1');
+                $pre->add('ApplicationServices/ApplicationServices.h', self::APPLICATION_SERVICES_H);
+                break;
+
+            case ContextPlatform::GLX:
+                $pre->define('GLFW_EXPOSE_NATIVE_GLX', '1');
+                $pre->add('GL/glx.h', self::GLX_H);
+                $pre->add('X11/Xlib.h', self::XLIB_H);
+                $pre->add('X11/extensions/Xrandr.h', self::XRANDR_H);
+                break;
+
+            case ContextPlatform::EGL:
+                $pre->define('GLFW_EXPOSE_NATIVE_EGL', '1');
+                $pre->add('EGL/egl.h', self::EGL_H);
+                break;
+
+            case ContextPlatform::OSMESA:
+                $pre->define('GLFW_EXPOSE_NATIVE_OSMESA', '1');
+                $pre->add('GL/osmesa.h', self::OSMESA_H);
+                break;
+        }
+
+        if (!$version instanceof VersionInterface) {
             $version = Version::create($version);
         }
 
@@ -118,8 +217,8 @@ class GLFW3 implements HeaderInterface
     public function __toString(): string
     {
         return \implode(\PHP_EOL, [
-            $this->pre->process(new \SplFileInfo($this->getHeaderPathname())),
-            $this->pre->process(new \SplFileInfo($this->getNativeHeaderPathname()))
-        ]) . \PHP_EOL;
+                $this->pre->process(new \SplFileInfo($this->getHeaderPathname())),
+                $this->pre->process(new \SplFileInfo($this->getNativeHeaderPathname()))
+            ]) . \PHP_EOL;
     }
 }
