@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace FFI\Headers\GLFW3\Tests;
 
-use FFI\Contracts\Preprocessor\Exception\DirectiveDefinitionExceptionInterface;
 use FFI\Headers\GLFW3;
 use FFI\Headers\GLFW3\ContextPlatform;
 use FFI\Headers\GLFW3\Version;
