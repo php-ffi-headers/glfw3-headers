@@ -35,9 +35,11 @@ class ContentRenderingTestCase extends TestCase
         parent::setUpBeforeClass();
     }
 
-    /**
-     * @return array{WindowPlatform, ContextPlatform, Version}
-     */
+    private function key(WindowPlatform $window, ContextPlatform $context, Version $version): string
+    {
+        return \sprintf('%s-%s-%s', $window->name, $context->name, $version->value);
+    }
+
     public function configDataProvider(): array
     {
         $result = [];
@@ -45,9 +47,7 @@ class ContentRenderingTestCase extends TestCase
         foreach (WindowPlatform::cases() as $window) {
             foreach (ContextPlatform::cases() as $context) {
                 foreach (Version::cases() as $version) {
-                    $name = \sprintf('%s-%s-%s', $window->name, $context->name, $version->value);
-
-                    $result[$name] = [$window, $context, $version];
+                    $result[$this->key($window, $context, $version)] = [$window, $context, $version];
                 }
             }
         }
@@ -57,14 +57,12 @@ class ContentRenderingTestCase extends TestCase
 
     /**
      * @testdox Testing that the headers are successfully collected with different parameters.
-     *
      * @dataProvider configDataProvider
-     * @throws DirectiveDefinitionExceptionInterface
      */
-    public function testRenderable(WindowPlatform $platform, ContextPlatform $context, Version $version): void
+    public function testRenderable(WindowPlatform $window, ContextPlatform $context, Version $version): void
     {
         $this->expectNotToPerformAssertions();
 
-        (string)GLFW3::create($platform, $context, $version, self::$pre);
+        (string)GLFW3::create($window, $context, $version, self::$pre);
     }
 }
