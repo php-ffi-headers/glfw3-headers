@@ -208,9 +208,11 @@ class BinaryCompatibilityTestCase extends TestCase
      */
     public function testCompilation(WindowPlatform $window, ContextPlatform $context, Version $version): void
     {
-        $this->expectException(\FFI\Exception::class);
-        $this->expectExceptionMessage('Failed resolving C function');
-
-        \FFI::cdef((string)GLFW3::create($window, $context, $version));
+        try {
+            \FFI::cdef((string)GLFW3::create($window, $context, $version));
+            $this->expectNotToPerformAssertions();
+        } catch (\FFI\Exception $e) {
+            $this->assertStringStartsWith('Failed resolving C function', $e->getMessage());
+        }
     }
 }
