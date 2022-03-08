@@ -30,7 +30,6 @@
     "require-dev": {
         "ffi/env": "^0.1|^1.0",
         "ffi/location": "^0.1|^1.0",
-        "phing/phing": "^3.0",
         "vimeo/psalm": "^4.22",
         "phpunit/phpunit": "^9.5"
     },
@@ -39,14 +38,10 @@
             "FFI\\Headers\\GLFW3\\Tests\\": "tests"
         }
     },
-    "conflict": {
-        "phpunit/phpunit": "9.5.17"
-    },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "composer/package-versions-deprecated": true,
-            "phing/phing-composer-configurator": false
+            "composer/package-versions-deprecated": true
         }
     },
     "provide": {
