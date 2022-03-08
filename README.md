@@ -6,11 +6,11 @@
 
 <p align="center">
     <a href="https://github.com/php-ffi-libs/glfw3-headers/actions"><img src="https://github.com/php-ffi-libs/glfw3-headers/workflows/build/badge.svg"></a>
-    <a href="https://packagist.org/packages/php-ffi-libs/glfw3-headers"><img src="https://img.shields.io/badge/PHP-8.1+-ff0140.svg" alt="PHP 7.1+"></a>
-    <a href="https://packagist.org/packages/php-ffi-libs/glfw3-headers"><img src="https://poser.pugx.org/php-ffi-libs/glfw3-headers/version" alt="Latest Stable Version"></a>
-    <a href="https://packagist.org/packages/php-ffi-libs/glfw3-headers"><img src="https://poser.pugx.org/php-ffi-libs/glfw3-headers/v/unstable" alt="Latest Unstable Version"></a>
-    <a href="https://packagist.org/packages/php-ffi-libs/glfw3-headers"><img src="https://poser.pugx.org/php-ffi-libs/glfw3-headers/downloads" alt="Total Downloads"></a>
-    <a href="https://raw.githubusercontent.com/php-ffi-libs/glfw3-headers/master/LICENSE.md"><img src="https://poser.pugx.org/php-ffi-libs/glfw3-headers/license" alt="License MIT"></a>
+    <a href="https://packagist.org/packages/ffi-libs/glfw3-headers"><img src="https://img.shields.io/badge/PHP-8.1+-ff0140.svg" alt="PHP 7.1+"></a>
+    <a href="https://packagist.org/packages/ffi-libs/glfw3-headers"><img src="https://poser.pugx.org/ffi-libs/glfw3-headers/version" alt="Latest Stable Version"></a>
+    <a href="https://packagist.org/packages/ffi-libs/glfw3-headers"><img src="https://poser.pugx.org/ffi-libs/glfw3-headers/v/unstable" alt="Latest Unstable Version"></a>
+    <a href="https://packagist.org/packages/ffi-libs/glfw3-headers"><img src="https://poser.pugx.org/ffi-libs/glfw3-headers/downloads" alt="Total Downloads"></a>
+    <a href="https://raw.githubusercontent.com/php-ffi-libs/glfw3-headers/master/LICENSE.md"><img src="https://poser.pugx.org/ffi-libs/glfw3-headers/license" alt="License MIT"></a>
 </p>
 
 # GLFW3 Headers
