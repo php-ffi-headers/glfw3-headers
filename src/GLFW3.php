@@ -43,6 +43,7 @@ class GLFW3 implements HeaderInterface
      */
     private const APPLICATION_SERVICES_H = <<<'CPP'
     // ApplicationServices.h
+    typedef uint32_t CGDirectDisplayID;
     CPP;
 
     /**
