@@ -79,6 +79,10 @@ class BinaryCompatibilityTestCase extends TestCase
 
     protected function getDarwinBinary(): string
     {
+        if ($library = Locator::resolve('glfw3.dylib', 'glfw.dylib', 'libglfw.3.dylib', 'libglfw.dylib')) {
+            return $library;
+        }
+
         $version = Version::LATEST->toString();
 
         // Download glfw archive
