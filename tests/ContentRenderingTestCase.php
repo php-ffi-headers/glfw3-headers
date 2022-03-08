@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace FFI\Headers\GLFW3\Tests;
 
-use FFI\Headers\SDL2;
+use FFI\Headers\GLFW3;
 use FFI\Headers\GLFW3\ContextPlatform;
 use FFI\Headers\GLFW3\Version;
 use FFI\Headers\GLFW3\WindowPlatform;
@@ -30,6 +30,6 @@ final class ContentRenderingTestCase extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        (string)SDL2::create($window, $context, $version);
+        (string)GLFW3::create($window, $context, $version);
     }
 }
