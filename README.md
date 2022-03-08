@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://github.com/ffi-libs">
-        <img src="https://avatars.githubusercontent.com/u/101121010?s=256" width="128" alt="Phplrt" />
+        <img src="https://avatars.githubusercontent.com/u/101121010?s=256" width="128" />
     </a>
 </p>
 
