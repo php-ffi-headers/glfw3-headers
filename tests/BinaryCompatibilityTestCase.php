@@ -23,8 +23,10 @@ use FFI\Location\Locator;
  */
 class BinaryCompatibilityTestCase extends TestCase
 {
-    private const WIN32_ARCHIVE_DIRECTORY = __DIR__ . '/storage/glfw3.zip';
+    private const WIN32_ARCHIVE_DIRECTORY = __DIR__ . '/storage/glfw3.win64.zip';
     private const WIN32_BINARY = __DIR__ . '/storage/glfw3.dll';
+    private const DARWIN_ARCHIVE_DIRECTORY = __DIR__ . '/storage/glfw3.darwin.zip';
+    private const DARWIN_BINARY = __DIR__ . '/storage/libglfw.3.dylib';
 
     public function setUp(): void
     {
@@ -66,7 +68,7 @@ class BinaryCompatibilityTestCase extends TestCase
 
     protected function getLinuxBinary(): string
     {
-        $binary = Locator::resolve('libglfw.so.3');
+        $binary = Locator::resolve('libglfw.so.3', 'libglfw.so');
 
         if ($binary === null) {
             $this->markTestSkipped('The [libglfw] library must be installed');
@@ -77,13 +79,31 @@ class BinaryCompatibilityTestCase extends TestCase
 
     protected function getDarwinBinary(): string
     {
-        $binary = Locator::resolve('glfw3.dylib');
+        $version = Version::LATEST->toString();
 
-        if ($binary === null) {
-            $this->markTestSkipped('The [glfw3] library must be installed');
+        // Download glfw archive
+        if (!\is_file(self::DARWIN_ARCHIVE_DIRECTORY)) {
+            $url = \vsprintf('https://github.com/glfw/glfw/releases/download/%s/glfw-%1$s.bin.MACOS.zip', [
+                $version
+            ]);
+
+            \stream_copy_to_stream(\fopen($url, 'rb'), \fopen(self::DARWIN_ARCHIVE_DIRECTORY, 'ab+'));
         }
 
-        return (string)$binary;
+        if (!\is_file(self::DARWIN_BINARY)) {
+            $directory = \dirname(self::DARWIN_ARCHIVE_DIRECTORY);
+            $file = \sprintf('glfw-%1$s.bin.MACOS/lib-x86_64/libglfw.3.dylib', $version);
+            $pathname = $directory . '/' . $file;
+
+            if (!\is_file($pathname)) {
+                $phar = new \PharData(self::DARWIN_ARCHIVE_DIRECTORY);
+                $phar->extractTo($directory, $file);
+            }
+
+            \rename($pathname, self::DARWIN_BINARY);
+        }
+
+        return self::DARWIN_BINARY;
     }
 
     /**
@@ -138,10 +158,6 @@ class BinaryCompatibilityTestCase extends TestCase
      */
     public function testX11PlatformWithoutContext(Version $version): void
     {
-        if (!isset($_SERVER['DISPLAY'])) {
-            $this->markTestSkipped('The X11 window system server required');
-        }
-
         $this->expectNotToPerformAssertions();
 
         $binary = $this->getLinuxBinary();
