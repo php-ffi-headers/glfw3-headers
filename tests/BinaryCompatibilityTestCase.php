@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This file is part of GLFW3 Headers package.
+ * This file is part of FFI package.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace FFI\Headers\GLFW3\Tests;
 
 use FFI\Env\Runtime;
-use FFI\Headers\GLFW3;
+use FFI\Headers\SDL2;
 use FFI\Headers\GLFW3\ContextPlatform;
 use FFI\Headers\GLFW3\Version;
 use FFI\Headers\GLFW3\WindowPlatform;
@@ -154,7 +154,7 @@ class BinaryCompatibilityTestCase extends TestCase
         $binary = $this->getWindowsBinary();
 
         $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(WindowPlatform::WIN32, null, $version), $binary);
+        \FFI::cdef((string)SDL2::create(WindowPlatform::WIN32, null, $version), $binary);
     }
 
     /**
@@ -168,7 +168,7 @@ class BinaryCompatibilityTestCase extends TestCase
         $binary = $this->getLinuxBinary();
 
         $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(WindowPlatform::X11, null, $version), $binary);
+        \FFI::cdef((string)SDL2::create(WindowPlatform::X11, null, $version), $binary);
     }
 
     /**
@@ -186,7 +186,7 @@ class BinaryCompatibilityTestCase extends TestCase
         $binary = $this->getLinuxBinary();
 
         $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(WindowPlatform::WAYLAND, null, $version), $binary);
+        \FFI::cdef((string)SDL2::create(WindowPlatform::WAYLAND, null, $version), $binary);
     }
 
     /**
@@ -200,7 +200,7 @@ class BinaryCompatibilityTestCase extends TestCase
         $binary = $this->getDarwinBinary();
 
         $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(WindowPlatform::COCOA, null, $version), $binary);
+        \FFI::cdef((string)SDL2::create(WindowPlatform::COCOA, null, $version), $binary);
     }
 
     /**
@@ -209,7 +209,7 @@ class BinaryCompatibilityTestCase extends TestCase
     public function testCompilation(WindowPlatform $window, ContextPlatform $context, Version $version): void
     {
         try {
-            \FFI::cdef((string)GLFW3::create($window, $context, $version));
+            \FFI::cdef((string)SDL2::create($window, $context, $version));
             $this->expectNotToPerformAssertions();
         } catch (\FFI\Exception $e) {
             $this->assertStringStartsWith('Failed resolving C function', $e->getMessage());
