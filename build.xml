@@ -1,9 +1,8 @@
-<?xml version="1.0"  encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <project name="ffi-libs/glfw3-headers" basedir="." default="ffi-libs/glfw3-headers:download">
     <!-- Default Properties -->
     <php returnProperty="GLFW3_DIR_TEMP" expression="sys_get_temp_dir();" />
-    <property name="GLFW3_DIR_HEADERS" value="${phing.dir.ffi_libs_glfw3_headers}/resources/headers" />
 
     <target name="ffi-libs/glfw3-headers:download"
             description="Download GLFW3 headers">
