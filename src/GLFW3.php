@@ -16,6 +16,7 @@ use FFI\Contracts\Preprocessor\Exception\DirectiveDefinitionExceptionInterface;
 use FFI\Contracts\Preprocessor\Exception\PreprocessorExceptionInterface;
 use FFI\Contracts\Preprocessor\PreprocessorInterface;
 use FFI\Headers\GLFW3\ContextPlatform;
+use FFI\Headers\GLFW3\HeadersDownloader;
 use FFI\Headers\GLFW3\Version;
 use FFI\Headers\GLFW3\VersionInterface;
 use FFI\Headers\GLFW3\WindowPlatform;
@@ -32,7 +33,6 @@ class GLFW3 implements HeaderInterface
      * @var non-empty-string
      */
     private const WINDOWS_H = <<<'CPP'
-    // windows.h
     typedef void* HWND;
     typedef void* HGLRC;
     CPP;
@@ -41,7 +41,6 @@ class GLFW3 implements HeaderInterface
      * @var non-empty-string
      */
     private const APPLICATION_SERVICES_H = <<<'CPP'
-    // ApplicationServices.h
     typedef uint32_t CGDirectDisplayID;
     CPP;
 
@@ -64,42 +63,6 @@ class GLFW3 implements HeaderInterface
     CPP;
 
     /**
-     * @var non-empty-string
-     */
-    private const WAYLAND_CLIENT_H = <<<'CPP'
-    // wayland-client.h
-    CPP;
-
-    /**
-     * @var non-empty-string
-     */
-    private const GLX_H = <<<'CPP'
-    #ifndef GLFW_EXPOSE_NATIVE_X11
-        typedef unsigned long XID;
-    #endif
-    typedef void* GLXContext;
-    typedef XID GLXWindow;
-    CPP;
-
-    /**
-     * @var non-empty-string
-     */
-    private const EGL_H = <<<'CPP'
-    // EGL/egl.h
-    typedef void *EGLDisplay;
-    typedef void *EGLContext;
-    typedef void *EGLSurface;
-    CPP;
-
-    /**
-     * @var non-empty-string
-     */
-    private const OSMESA_H = <<<'CPP'
-    // GL/osmesa.h
-    typedef struct osmesa_context *OSMesaContext;
-    CPP;
-
-    /**
      * @param PreprocessorInterface $pre
      * @param VersionInterface $version
      */
@@ -107,6 +70,23 @@ class GLFW3 implements HeaderInterface
         public readonly PreprocessorInterface $pre,
         public readonly VersionInterface $version = Version::LATEST,
     ) {
+        if (!$this->exists()) {
+            HeadersDownloader::download($this->version, self::HEADERS_DIRECTORY);
+
+            if (!$this->exists()) {
+                throw new \RuntimeException('Could not initialize (download) header files');
+            }
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    private function exists(): bool
+    {
+        return \is_file($this->getHeaderPathname())
+            && \is_file($this->getNativeHeaderPathname())
+        ;
     }
 
     /**
@@ -169,7 +149,7 @@ class GLFW3 implements HeaderInterface
 
             case WindowPlatform::WAYLAND:
                 $pre->define('GLFW_EXPOSE_NATIVE_WAYLAND', '1');
-                $pre->add('wayland-client.h', self::WAYLAND_CLIENT_H);
+                $pre->add('wayland-client.h', '');
                 break;
         }
 
@@ -187,19 +167,31 @@ class GLFW3 implements HeaderInterface
 
             case ContextPlatform::GLX:
                 $pre->define('GLFW_EXPOSE_NATIVE_GLX', '1');
-                $pre->add('GL/glx.h', self::GLX_H);
+                $pre->add('GL/glx.h', <<<'CPP'
+                 #ifndef GLFW_EXPOSE_NATIVE_X11
+                    typedef unsigned long XID;
+                #endif
+                typedef void* GLXContext;
+                typedef XID GLXWindow;
+                CPP);
                 $pre->add('X11/Xlib.h', self::XLIB_H);
                 $pre->add('X11/extensions/Xrandr.h', self::XRANDR_H);
                 break;
 
             case ContextPlatform::EGL:
                 $pre->define('GLFW_EXPOSE_NATIVE_EGL', '1');
-                $pre->add('EGL/egl.h', self::EGL_H);
+                $pre->add('EGL/egl.h', <<<'CPP'
+                typedef void *EGLDisplay;
+                typedef void *EGLContext;
+                typedef void *EGLSurface;
+                CPP);
                 break;
 
             case ContextPlatform::OSMESA:
                 $pre->define('GLFW_EXPOSE_NATIVE_OSMESA', '1');
-                $pre->add('GL/osmesa.h', self::OSMESA_H);
+                $pre->add('GL/osmesa.h', <<<'CPP'
+                typedef struct osmesa_context *OSMesaContext;
+                CPP);
                 break;
         }
 
