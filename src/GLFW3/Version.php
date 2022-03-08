@@ -13,22 +13,9 @@ namespace FFI\Headers\GLFW3;
 
 enum Version: string implements VersionInterface
 {
-    case V3_0_0 = '3.0.0';
-    case V3_0_1 = '3.0.1';
-    case V3_0_2 = '3.0.2';
-    case V3_0_3 = '3.0.3';
     case V3_0_4 = '3.0.4';
-    case V3_1_0 = '3.1.0';
-    case V3_1_1 = '3.1.1';
     case V3_1_2 = '3.1.2';
-    case V3_2_0 = '3.2.0';
     case V3_2_1 = '3.2.1';
-    case V3_3_0 = '3.3.0';
-    case V3_3_1 = '3.3.1';
-    case V3_3_2 = '3.3.2';
-    case V3_3_3 = '3.3.3';
-    case V3_3_4 = '3.3.4';
-    case V3_3_5 = '3.3.5';
     case V3_3_6 = '3.3.6';
 
     public const LATEST = self::V3_3_6;
