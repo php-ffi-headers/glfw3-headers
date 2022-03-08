@@ -37,8 +37,6 @@ class GLFW3 implements HeaderInterface
     CPP;
 
     /**
-     * TODO Add NSGL/COCOA types
-     *
      * @var non-empty-string
      */
     private const APPLICATION_SERVICES_H = <<<'CPP'
