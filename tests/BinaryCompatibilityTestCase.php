@@ -13,6 +13,7 @@ namespace FFI\Headers\GLFW3\Tests;
 
 use FFI\Env\Runtime;
 use FFI\Headers\GLFW3;
+use FFI\Headers\GLFW3\ContextPlatform;
 use FFI\Headers\GLFW3\Version;
 use FFI\Headers\GLFW3\WindowPlatform;
 use FFI\Location\Locator;
@@ -200,5 +201,16 @@ class BinaryCompatibilityTestCase extends TestCase
 
         $this->assertVersionCompare($version, $binary);
         \FFI::cdef((string)GLFW3::create(WindowPlatform::COCOA, null, $version), $binary);
+    }
+
+    /**
+     * @dataProvider configDataProvider
+     */
+    public function testCompilation(WindowPlatform $window, ContextPlatform $context, Version $version): void
+    {
+        $this->expectException(\FFI\Exception::class);
+        $this->expectExceptionMessage('Failed resolving C function');
+
+        \FFI::cdef((string)GLFW3::create($window, $context, $version));
     }
 }

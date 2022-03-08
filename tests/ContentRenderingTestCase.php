@@ -22,25 +22,6 @@ use FFI\Headers\GLFW3\WindowPlatform;
 final class ContentRenderingTestCase extends TestCase
 {
     /**
-     * @return array<array{WindowPlatform, ContextPlatform, Version}>
-     */
-    public function configDataProvider(): array
-    {
-        $result = [];
-
-        foreach (WindowPlatform::cases() as $window) {
-            foreach (ContextPlatform::cases() as $context) {
-                foreach (Version::cases() as $version) {
-                    $result[\sprintf('%s-%s-%s', $window->name, $context->name, $version->value)]
-                        = [$window, $context, $version];
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * @testdox Testing that the headers are successfully built
      *
      * @dataProvider configDataProvider

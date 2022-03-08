@@ -34,6 +34,7 @@ class GLFW3 implements HeaderInterface
     private const WINDOWS_H = <<<'CPP'
     // windows.h
     typedef void* HWND;
+    typedef void* HGLRC;
     CPP;
 
     /**
@@ -63,8 +64,6 @@ class GLFW3 implements HeaderInterface
     CPP;
 
     /**
-     * TODO Add Wayland types
-     *
      * @var non-empty-string
      */
     private const WAYLAND_CLIENT_H = <<<'CPP'
@@ -75,25 +74,29 @@ class GLFW3 implements HeaderInterface
      * @var non-empty-string
      */
     private const GLX_H = <<<'CPP'
+    #ifndef GLFW_EXPOSE_NATIVE_X11
+        typedef unsigned long XID;
+    #endif
     typedef void* GLXContext;
+    typedef XID GLXWindow;
     CPP;
 
     /**
-     * TODO Add EGL types
-     *
      * @var non-empty-string
      */
     private const EGL_H = <<<'CPP'
     // EGL/egl.h
+    typedef void *EGLDisplay;
+    typedef void *EGLContext;
+    typedef void *EGLSurface;
     CPP;
 
     /**
-     * TODO Add OSMESA types
-     *
      * @var non-empty-string
      */
     private const OSMESA_H = <<<'CPP'
     // GL/osmesa.h
+    typedef struct osmesa_context *OSMesaContext;
     CPP;
 
     /**
