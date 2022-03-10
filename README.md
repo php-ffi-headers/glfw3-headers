@@ -37,8 +37,8 @@ $ composer require ffi-headers/glfw3-headers
 use FFI\Headers\GLFW3;
 
 $headers = GLFW3::create(
-    GLFW3\WindowPlatform::X11,  // Window API
-    GLFW3\ContextPlatform::GLX, // Context API
+    GLFW3\Platform::X11,  // Window API
+    GLFW3\Context::GLX, // Context API
     GLFW3\Version::V3_3_6,      // GLFW Headers Version
 );
 

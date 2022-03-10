@@ -15,11 +15,11 @@ use FFI\Contracts\Headers\HeaderInterface;
 use FFI\Contracts\Preprocessor\Exception\DirectiveDefinitionExceptionInterface;
 use FFI\Contracts\Preprocessor\Exception\PreprocessorExceptionInterface;
 use FFI\Contracts\Preprocessor\PreprocessorInterface;
-use FFI\Headers\GLFW3\ContextPlatform;
+use FFI\Headers\GLFW3\Context;
 use FFI\Headers\GLFW3\HeadersDownloader;
 use FFI\Headers\GLFW3\Version;
-use FFI\Headers\GLFW3\VersionInterface;
-use FFI\Headers\GLFW3\WindowPlatform;
+use FFI\Contracts\Headers\VersionInterface;
+use FFI\Headers\GLFW3\Platform;
 use FFI\Preprocessor\Preprocessor;
 
 class GLFW3 implements HeaderInterface
@@ -106,16 +106,16 @@ class GLFW3 implements HeaderInterface
     }
 
     /**
-     * @param WindowPlatform|null $window
-     * @param ContextPlatform|null $context
+     * @param Platform|null $platform
+     * @param Context|null $context
      * @param VersionInterface|non-empty-string $version
      * @param PreprocessorInterface $pre
      * @return self
      * @throws DirectiveDefinitionExceptionInterface
      */
     public static function create(
-        WindowPlatform $window = null,
-        ContextPlatform $context = null,
+        Platform $platform = null,
+        Context $context = null,
         VersionInterface|string $version = Version::LATEST,
         PreprocessorInterface $pre = new Preprocessor(),
     ): self {
@@ -127,8 +127,8 @@ class GLFW3 implements HeaderInterface
         $pre->add('GL/gl.h', '');
 
         // Expose Window API
-        switch ($window) {
-            case WindowPlatform::WIN32:
+        switch ($platform) {
+            case Platform::WIN32:
                 $pre->define('GLFW_EXPOSE_NATIVE_WIN32', '1');
                 $pre->define('_WIN32', '1');
                 $pre->define('WINGDIAPI');
@@ -136,18 +136,18 @@ class GLFW3 implements HeaderInterface
                 $pre->add('windows.h', self::WINDOWS_H);
                 break;
 
-            case WindowPlatform::COCOA:
+            case Platform::COCOA:
                 $pre->define('GLFW_EXPOSE_NATIVE_COCOA', '1');
                 $pre->add('ApplicationServices/ApplicationServices.h', self::APPLICATION_SERVICES_H);
                 break;
 
-            case WindowPlatform::X11:
+            case Platform::X11:
                 $pre->define('GLFW_EXPOSE_NATIVE_X11', '1');
                 $pre->add('X11/Xlib.h', self::XLIB_H);
                 $pre->add('X11/extensions/Xrandr.h', self::XRANDR_H);
                 break;
 
-            case WindowPlatform::WAYLAND:
+            case Platform::WAYLAND:
                 $pre->define('GLFW_EXPOSE_NATIVE_WAYLAND', '1');
                 $pre->add('wayland-client.h', '');
                 break;
@@ -155,17 +155,17 @@ class GLFW3 implements HeaderInterface
 
         // Expose Context API
         switch ($context) {
-            case ContextPlatform::WGL:
+            case Context::WGL:
                 $pre->define('GLFW_EXPOSE_NATIVE_WGL', '1');
                 $pre->add('windows.h', self::WINDOWS_H);
                 break;
 
-            case ContextPlatform::NSGL:
+            case Context::NSGL:
                 $pre->define('GLFW_EXPOSE_NATIVE_NSGL', '1');
                 $pre->add('ApplicationServices/ApplicationServices.h', self::APPLICATION_SERVICES_H);
                 break;
 
-            case ContextPlatform::GLX:
+            case Context::GLX:
                 $pre->define('GLFW_EXPOSE_NATIVE_GLX', '1');
                 $pre->add('GL/glx.h', <<<'CPP'
                  #ifndef GLFW_EXPOSE_NATIVE_X11
@@ -178,7 +178,7 @@ class GLFW3 implements HeaderInterface
                 $pre->add('X11/extensions/Xrandr.h', self::XRANDR_H);
                 break;
 
-            case ContextPlatform::EGL:
+            case Context::EGL:
                 $pre->define('GLFW_EXPOSE_NATIVE_EGL', '1');
                 $pre->add('EGL/egl.h', <<<'CPP'
                 typedef void *EGLDisplay;
@@ -187,7 +187,7 @@ class GLFW3 implements HeaderInterface
                 CPP);
                 break;
 
-            case ContextPlatform::OSMESA:
+            case Context::OSMESA:
                 $pre->define('GLFW_EXPOSE_NATIVE_OSMESA', '1');
                 $pre->add('GL/osmesa.h', <<<'CPP'
                 typedef struct osmesa_context *OSMesaContext;

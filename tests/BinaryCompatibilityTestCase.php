@@ -13,9 +13,9 @@ namespace FFI\Headers\GLFW3\Tests;
 
 use FFI\Env\Runtime;
 use FFI\Headers\GLFW3;
-use FFI\Headers\GLFW3\ContextPlatform;
+use FFI\Headers\GLFW3\Context;
 use FFI\Headers\GLFW3\Version;
-use FFI\Headers\GLFW3\WindowPlatform;
+use FFI\Headers\GLFW3\Platform;
 use FFI\Location\Locator;
 
 /**
@@ -154,7 +154,7 @@ class BinaryCompatibilityTestCase extends TestCase
         $binary = $this->getWindowsBinary();
 
         $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(WindowPlatform::WIN32, null, $version), $binary);
+        \FFI::cdef((string)GLFW3::create(Platform::WIN32, null, $version), $binary);
     }
 
     /**
@@ -168,7 +168,7 @@ class BinaryCompatibilityTestCase extends TestCase
         $binary = $this->getLinuxBinary();
 
         $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(WindowPlatform::X11, null, $version), $binary);
+        \FFI::cdef((string)GLFW3::create(Platform::X11, null, $version), $binary);
     }
 
     /**
@@ -186,7 +186,7 @@ class BinaryCompatibilityTestCase extends TestCase
         $binary = $this->getLinuxBinary();
 
         $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(WindowPlatform::WAYLAND, null, $version), $binary);
+        \FFI::cdef((string)GLFW3::create(Platform::WAYLAND, null, $version), $binary);
     }
 
     /**
@@ -200,13 +200,13 @@ class BinaryCompatibilityTestCase extends TestCase
         $binary = $this->getDarwinBinary();
 
         $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(WindowPlatform::COCOA, null, $version), $binary);
+        \FFI::cdef((string)GLFW3::create(Platform::COCOA, null, $version), $binary);
     }
 
     /**
      * @dataProvider configDataProvider
      */
-    public function testCompilation(WindowPlatform $window, ContextPlatform $context, Version $version): void
+    public function testCompilation(Platform $window, Context $context, Version $version): void
     {
         try {
             \FFI::cdef((string)GLFW3::create($window, $context, $version));

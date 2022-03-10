@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace FFI\Headers\GLFW3;
 
-enum WindowPlatform
+enum Platform
 {
     case WIN32;
     case COCOA;

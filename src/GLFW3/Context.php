@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace FFI\Headers\GLFW3;
 
-enum ContextPlatform
+enum Context
 {
     case WGL;
     case NSGL;
