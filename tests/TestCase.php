@@ -14,10 +14,13 @@ namespace FFI\Headers\GLFW3\Tests;
 use FFI\Headers\GLFW3\Context;
 use FFI\Headers\GLFW3\Version;
 use FFI\Headers\GLFW3\Platform;
+use FFI\Headers\Testing\TestingTrait;
 use PHPUnit\Framework\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    use TestingTrait;
+
     /**
      * @return array<array{Platform, Context, Version}>
      */
@@ -40,6 +43,20 @@ abstract class TestCase extends BaseTestCase
                 $result[\sprintf('%s-%s-%s', $window->name, $context->name, $version->value)]
                     = [$window, $context, $version];
             }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array<array{Version}>
+     */
+    public function versionsDataProvider(): array
+    {
+        $result = [];
+
+        foreach (Version::cases() as $version) {
+            $result[$version->toString()] = [$version];
         }
 
         return $result;

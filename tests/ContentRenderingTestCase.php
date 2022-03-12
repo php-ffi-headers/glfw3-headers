@@ -13,12 +13,9 @@ namespace FFI\Headers\GLFW3\Tests;
 
 use FFI\Headers\GLFW3;
 use FFI\Headers\GLFW3\Context;
-use FFI\Headers\GLFW3\Version;
 use FFI\Headers\GLFW3\Platform;
+use FFI\Headers\GLFW3\Version;
 
-/**
- * @group building
- */
 final class ContentRenderingTestCase extends TestCase
 {
     /**
@@ -26,10 +23,23 @@ final class ContentRenderingTestCase extends TestCase
      *
      * @dataProvider configDataProvider
      */
-    public function testRenderable(Platform $window, Context $context, Version $version): void
+    public function testRenderable(Platform $platform, Context $context, Version $version): void
     {
         $this->expectNotToPerformAssertions();
 
-        (string)GLFW3::create($window, $context, $version);
+        (string)GLFW3::create($platform, $context, $version);
+    }
+
+    /**
+     * @testdox Testing that headers contain correct syntax
+     *
+     * @depends testRenderable
+     * @dataProvider configDataProvider
+     */
+    public function testCompilation(Platform $platform, Context $context, Version $version): void
+    {
+        $this->assertHeadersSyntaxValid(
+            GLFW3::create($platform, $context, $version)
+        );
     }
 }

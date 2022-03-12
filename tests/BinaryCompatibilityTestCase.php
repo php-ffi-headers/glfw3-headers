@@ -11,122 +11,18 @@ declare(strict_types=1);
 
 namespace FFI\Headers\GLFW3\Tests;
 
-use FFI\Env\Runtime;
 use FFI\Headers\GLFW3;
-use FFI\Headers\GLFW3\Context;
 use FFI\Headers\GLFW3\Version;
 use FFI\Headers\GLFW3\Platform;
+use FFI\Headers\Testing\Downloader;
 use FFI\Location\Locator;
 
-/**
- * @group binary-compatibility
- * @requires extension ffi
- */
 class BinaryCompatibilityTestCase extends TestCase
 {
-    private const WIN32_ARCHIVE_DIRECTORY = __DIR__ . '/storage/glfw3.win64.zip';
-    private const WIN32_BINARY = __DIR__ . '/storage/glfw3.dll';
-    private const DARWIN_ARCHIVE_DIRECTORY = __DIR__ . '/storage/glfw3.darwin.zip';
-    private const DARWIN_BINARY = __DIR__ . '/storage/libglfw.3.dylib';
-
-    public function setUp(): void
+    protected function skipIfVersionNotCompatible(Version $version, string $binary): void
     {
-        if (!Runtime::isAvailable()) {
-            $this->markTestSkipped('An ext-ffi extension must be available and enabled');
-        }
+        $this->skipIfNoFFISupport();
 
-        parent::setUp();
-    }
-
-    protected function getWindowsBinary(): string
-    {
-        $version = Version::LATEST->toString();
-
-        // Download glfw archive
-        if (!\is_file(self::WIN32_ARCHIVE_DIRECTORY)) {
-            $url = \vsprintf('https://github.com/glfw/glfw/releases/download/%s/glfw-%1$s.bin.WIN64.zip', [
-                $version
-            ]);
-
-            \stream_copy_to_stream(\fopen($url, 'rb'), \fopen(self::WIN32_ARCHIVE_DIRECTORY, 'ab+'));
-        }
-
-        if (!\is_file(self::WIN32_BINARY)) {
-            $directory = \dirname(self::WIN32_ARCHIVE_DIRECTORY);
-            $file = \sprintf('glfw-%1$s.bin.WIN64/lib-vc2022/glfw3.dll', $version);
-            $pathname = $directory . '/' . $file;
-
-            if (!\is_file($pathname)) {
-                $phar = new \PharData(self::WIN32_ARCHIVE_DIRECTORY);
-                $phar->extractTo($directory, $file);
-            }
-
-            \rename($pathname, self::WIN32_BINARY);
-        }
-
-        return self::WIN32_BINARY;
-    }
-
-    protected function getLinuxBinary(): string
-    {
-        $binary = Locator::resolve('libglfw.so.3', 'libglfw.so');
-
-        if ($binary === null) {
-            $this->markTestSkipped('The [libglfw] library must be installed');
-        }
-
-        return (string)$binary;
-    }
-
-    protected function getDarwinBinary(): string
-    {
-        if ($library = Locator::resolve('glfw3.dylib', 'glfw.dylib', 'libglfw.3.dylib', 'libglfw.dylib')) {
-            return $library;
-        }
-
-        $version = Version::LATEST->toString();
-
-        // Download glfw archive
-        if (!\is_file(self::DARWIN_ARCHIVE_DIRECTORY)) {
-            $url = \vsprintf('https://github.com/glfw/glfw/releases/download/%s/glfw-%1$s.bin.MACOS.zip', [
-                $version
-            ]);
-
-            \stream_copy_to_stream(\fopen($url, 'rb'), \fopen(self::DARWIN_ARCHIVE_DIRECTORY, 'ab+'));
-        }
-
-        if (!\is_file(self::DARWIN_BINARY)) {
-            $directory = \dirname(self::DARWIN_ARCHIVE_DIRECTORY);
-            $file = \sprintf('glfw-%1$s.bin.MACOS/lib-x86_64/libglfw.3.dylib', $version);
-            $pathname = $directory . '/' . $file;
-
-            if (!\is_file($pathname)) {
-                $phar = new \PharData(self::DARWIN_ARCHIVE_DIRECTORY);
-                $phar->extractTo($directory, $file);
-            }
-
-            \rename($pathname, self::DARWIN_BINARY);
-        }
-
-        return self::DARWIN_BINARY;
-    }
-
-    /**
-     * @return array<array{Version}>
-     */
-    public function versionsDataProvider(): array
-    {
-        $result = [];
-
-        foreach (Version::cases() as $version) {
-            $result[$version->toString()] = [$version];
-        }
-
-        return $result;
-    }
-
-    protected function assertVersionCompare(Version $version, string $binary): void
-    {
         $ffi = \FFI::cdef('void glfwGetVersion(int* major, int* minor, int* rev);', $binary);
 
         [$maj, $min, $rev] = [$ffi->new('int'), $ffi->new('int'), $ffi->new('int')];
@@ -143,50 +39,52 @@ class BinaryCompatibilityTestCase extends TestCase
 
     /**
      * @requires OSFAMILY Windows
-     * @requires extension phar
-     *
      * @dataProvider versionsDataProvider
      */
-    public function testWin32PlatformWithoutContext(Version $version): void
+    public function testWindowsBinaryCompatibility(Version $version): void
     {
-        $this->expectNotToPerformAssertions();
+        if (!\is_file($binary = __DIR__ . '/storage/glfw.dll')) {
+            $from = \sprintf('glfw-%1$s.bin.WIN64/lib-vc2022/glfw3.dll', Version::LATEST->toString());
+            Downloader::zip('https://github.com/glfw/glfw/releases/download/%s/glfw-%1$s.bin.WIN64.zip', [
+                Version::LATEST->toString(),
+            ])
+                ->extract($from, $binary);
+        }
 
-        $binary = $this->getWindowsBinary();
-
-        $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(Platform::WIN32, null, $version), $binary);
+        $this->skipIfVersionNotCompatible($version, $binary);
+        $this->assertHeadersCompatibleWith(GLFW3::create(Platform::WIN32, null, $version), $binary);
     }
 
     /**
      * @requires OSFAMILY Linux
      * @dataProvider versionsDataProvider
      */
-    public function testX11PlatformWithoutContext(Version $version): void
+    public function testLinuxX11BinaryCompatibility(Version $version): void
     {
-        $this->expectNotToPerformAssertions();
+        if (($binary = Locator::resolve('libglfw.so.3', 'libglfw.so')) === null) {
+            $this->markTestSkipped('The [libglfw] library must be installed');
+        }
 
-        $binary = $this->getLinuxBinary();
-
-        $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(Platform::X11, null, $version), $binary);
+        $this->skipIfVersionNotCompatible($version, $binary);
+        $this->assertHeadersCompatibleWith(GLFW3::create(Platform::X11, null, $version), $binary);
     }
 
     /**
      * @requires OSFAMILY Linux
      * @dataProvider versionsDataProvider
      */
-    public function testWaylandPlatformWithoutContext(Version $version): void
+    public function testLinuxWaylandBinaryCompatibility(Version $version): void
     {
         if (!isset($_SERVER['XDG_SESSION_TYPE']) || $_SERVER['XDG_SESSION_TYPE'] !== 'wayland') {
             $this->markTestSkipped('The Wayland window system server required');
         }
 
-        $this->expectNotToPerformAssertions();
+        if (($binary = Locator::resolve('libglfw.so.3', 'libglfw.so')) === null) {
+            $this->markTestSkipped('The [libglfw] library must be installed');
+        }
 
-        $binary = $this->getLinuxBinary();
-
-        $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(Platform::WAYLAND, null, $version), $binary);
+        $this->skipIfVersionNotCompatible($version, $binary);
+        $this->assertHeadersCompatibleWith(GLFW3::create(Platform::WAYLAND, null, $version), $binary);
     }
 
     /**
@@ -195,24 +93,21 @@ class BinaryCompatibilityTestCase extends TestCase
      */
     public function testCocoaPlatformWithoutContext(Version $version): void
     {
-        $this->expectNotToPerformAssertions();
+        $binary = Locator::resolve('glfw3.dylib', 'glfw.dylib', 'libglfw.3.dylib', 'libglfw.dylib');
 
-        $binary = $this->getDarwinBinary();
+        if ($binary === null) {
+            $binary = __DIR__ . '/storage/glfw.dylib';
 
-        $this->assertVersionCompare($version, $binary);
-        \FFI::cdef((string)GLFW3::create(Platform::COCOA, null, $version), $binary);
-    }
-
-    /**
-     * @dataProvider configDataProvider
-     */
-    public function testCompilation(Platform $window, Context $context, Version $version): void
-    {
-        try {
-            \FFI::cdef((string)GLFW3::create($window, $context, $version));
-            $this->expectNotToPerformAssertions();
-        } catch (\FFI\Exception $e) {
-            $this->assertStringStartsWith('Failed resolving C function', $e->getMessage());
+            if (!\is_file($binary)) {
+                $from = \sprintf('glfw-%1$s.bin.MACOS/lib-x86_64/libglfw.3.dylib', Version::LATEST->toString());
+                Downloader::zip('https://github.com/glfw/glfw/releases/download/%s/glfw-%1$s.bin.MACOS.zip', [
+                    Version::LATEST->toString(),
+                ])
+                    ->extract($from, $binary);
+            }
         }
+
+        $this->skipIfVersionNotCompatible($version, $binary);
+        $this->assertHeadersCompatibleWith(GLFW3::create(Platform::COCOA, null, $version), $binary);
     }
 }
