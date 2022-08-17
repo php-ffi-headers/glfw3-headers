@@ -139,6 +139,7 @@ class GLFW3 implements HeaderInterface
             case Platform::COCOA:
                 $pre->define('GLFW_EXPOSE_NATIVE_COCOA', '1');
                 $pre->add('ApplicationServices/ApplicationServices.h', self::APPLICATION_SERVICES_H);
+                $pre->add('objc/objc.h', 'typedef struct objc_object *id;');
                 break;
 
             case Platform::X11:
